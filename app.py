@@ -43,7 +43,19 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 
 @st.cache_data
 def load_dashboard():
-    html_path = SCRIPT_DIR / "MF_NAVigator.html"
+    # Auto-find the HTML dashboard file (any .html file that isn't a tiny snippet)
+    html_files = list(SCRIPT_DIR.glob("*.html"))
+
+    if not html_files:
+        st.error(
+            "❌ No .html file found in the repo!\n\n"
+            f"Files in directory: {[f.name for f in SCRIPT_DIR.iterdir()]}"
+        )
+        st.stop()
+
+    # Pick the largest .html file (the dashboard), skip any tiny files
+    html_path = max(html_files, key=lambda f: f.stat().st_size)
+
     with open(html_path, "r", encoding="utf-8") as f:
         return f.read()
 
